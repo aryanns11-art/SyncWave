@@ -1,9 +1,26 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect} from "react";
 import SongCard from "./components/SongCard";
+import Player from "./components/Player";
 
 function App() {
 
     const [songs, setSongs] = useState([]);
+
+    const [currentSong, setCurrentSong] = useState(null);
+
+    const [isPlaying, setIsPlaying] = useState(false);
+
+    const togglePlayPause = () => {
+    setIsPlaying(!isPlaying);
+    };
+
+    const handleSongSelect = (selectedSong) => {
+    setCurrentSong(selectedSong);
+    setIsPlaying(true);
+    const audio = new Audio();
+    audio.src = selectedSong.file;
+    audio.play();
+    };
 
     useEffect(() => {
 
@@ -20,14 +37,19 @@ function App() {
 
         <h1>🎵 SyncWave</h1>
 
-        {songs.map((song)=>(
-            <SongCard
+        {songs.map((song) => (
+    <SongCard
+        key={song.id}
+        song={song}
+        onSelect={handleSongSelect}
+    />
+))}
+        <Player
+        currentSong={currentSong}
+        isPlaying={isPlaying}
+        onToggle={togglePlayPause}  
+        />
 
-                key={song.id}
-
-                song={song}
-            />
-        ))}
 
     </div>
 );

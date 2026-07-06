@@ -1,8 +1,12 @@
 import "./SongCard.css";
 
-function SongCard({ song }) {
+function SongCard({ song, onSelect }) {
+  
   return (
-    <div className="song-card">
+    <div
+    className="song-card"
+    onClick={() => onSelect(song)}
+    >
       <div className="song-cover">
         🎵
       </div>
