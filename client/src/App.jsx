@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import SongCard from "./components/SongCard";
 
 function App() {
 
@@ -15,26 +16,22 @@ function App() {
     }, []);
 
     return (
-        <div>
+        <div className="App">
 
-            <h1>🎵 SyncWave</h1>
+        <h1>🎵 SyncWave</h1>
 
-            {
-                songs.map((song) => (
+        {songs.map((song)=>(
+            <SongCard
 
-                    <div key={song.id}>
+                key={song.id}
 
-                        <h2>{song.title}</h2>
+                song={song}
+            />
+        ))}
 
-                        <p>{song.artist}</p>
+    </div>
+);
 
-                    </div>
-
-                ))
-            }
-
-        </div>
-    );
 }
 
 export default App;

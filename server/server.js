@@ -1,31 +1,14 @@
+const songs = require("./data/songs");
+
 const express = require("express");
 const cors = require("cors");
 
+const songRoutes = require("./routes/songRoutes");
 const app = express();
 
-app.use(cors());
+app.use(cors());    
 
-const songs = [
-    {
-        id: 1,
-        title: "Believer",
-        artist: "Imagine Dragons"
-    },
-    {
-        id: 2,
-        title: "Perfect",
-        artist: "Ed Sheeran"
-    },
-    {
-        id: 3,
-        title: "Faded",
-        artist: "Alan Walker"
-    }
-];
-
-app.get("/api/songs", (req, res) => {
-    res.json(songs);
-});
+app.use("/api/songs", songRoutes);
 
 app.listen(5000, () => {
     console.log("Server running on port 5000");
