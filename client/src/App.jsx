@@ -2,30 +2,39 @@ import { useEffect, useState } from "react";
 
 function App() {
 
-  const [message, setMessage] = useState("");
+    const [songs, setSongs] = useState([]);
 
-  useEffect(() => {
+    useEffect(() => {
 
-    fetch("http://localhost:5000/api/message")
-      .then((response) => response.json())
-      .then((data) => {
-        setMessage(data.message);
-      });
+        fetch("http://localhost:5000/api/songs")
+            .then((response) => response.json())
+            .then((data) => {
+                setSongs(data);
+            });
 
-  }, []);
+    }, []);
 
-  return (
+    return (
+        <div>
 
-    <div>
+            <h1>🎵 SyncWave</h1>
 
-      <h1>SyncWave</h1>
+            {
+                songs.map((song) => (
 
-      <h2>{message}</h2>
+                    <div key={song.id}>
 
-    </div>
+                        <h2>{song.title}</h2>
 
-  );
+                        <p>{song.artist}</p>
 
+                    </div>
+
+                ))
+            }
+
+        </div>
+    );
 }
 
 export default App;

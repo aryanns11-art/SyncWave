@@ -5,16 +5,28 @@ const app = express();
 
 app.use(cors());
 
-app.get("/", (req, res) => {
-    res.send("SyncWave Backend Running");
-});
+const songs = [
+    {
+        id: 1,
+        title: "Believer",
+        artist: "Imagine Dragons"
+    },
+    {
+        id: 2,
+        title: "Perfect",
+        artist: "Ed Sheeran"
+    },
+    {
+        id: 3,
+        title: "Faded",
+        artist: "Alan Walker"
+    }
+];
 
-app.get("/api/message", (req, res) => {
-    res.json({
-        message: "Hello from Backend 🚀"
-    });
+app.get("/api/songs", (req, res) => {
+    res.json(songs);
 });
 
 app.listen(5000, () => {
-    console.log("Server running");
+    console.log("Server running on port 5000");
 });
