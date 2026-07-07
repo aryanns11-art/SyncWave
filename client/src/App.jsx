@@ -1,4 +1,4 @@
-import { useState, useEffect} from "react";
+import { useState, useEffect, useRef } from "react";
 import SongCard from "./components/SongCard";
 import Player from "./components/Player";
 
@@ -10,17 +10,25 @@ function App() {
 
     const [isPlaying, setIsPlaying] = useState(false);
 
+    const audioRef = useRef(new Audio());
+
     const togglePlayPause = () => {
-    setIsPlaying(!isPlaying);
-    };
+
+    if (isPlaying) {
+        audioRef.current.pause();
+        setIsPlaying(false);
+    } else {
+        audioRef.current.play();
+        setIsPlaying(true);
+    }
+
+};
 
     const handleSongSelect = (selectedSong) => {
     setCurrentSong(selectedSong);
     setIsPlaying(true);
-    const audio = new Audio();
-    audio.src = selectedSong.file;
-    audio.play();
-    };
+    audioRef.current.src = selectedSong.file;
+    audioRef.current.play();};
 
     useEffect(() => {
 

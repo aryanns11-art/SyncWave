@@ -1,10 +1,16 @@
+const path = require("path");
+
 const songs = require("./data/songs");
 
 const express = require("express");
 const cors = require("cors");
 
-const songRoutes = require("./routes/songRoutes");
 const app = express();
+
+app.use(express.static(path.join(__dirname, "public")));
+
+const songRoutes = require("./routes/songRoutes");
+
 
 app.use(cors());    
 

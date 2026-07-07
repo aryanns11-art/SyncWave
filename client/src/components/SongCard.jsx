@@ -8,9 +8,9 @@ function SongCard({ song, onSelect }) {
     onClick={() => onSelect(song)}
     >
       <div className="song-cover">
-        🎵
+        <img src={song.cover} alt={song.title} />
       </div>
-
+      
       <div className="song-info">
         <h3>{song.title}</h3>
         <p>{song.artist}</p>
