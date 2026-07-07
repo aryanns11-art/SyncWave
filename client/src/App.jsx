@@ -50,6 +50,7 @@ function App() {
         key={song.id}
         song={song}
         onSelect={handleSongSelect}
+        isCurrent={currentSong?.id === song.id}
     />
 ))}
         <Player

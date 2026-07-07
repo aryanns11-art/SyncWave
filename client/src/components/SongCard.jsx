@@ -1,10 +1,9 @@
 import "./SongCard.css";
 
-function SongCard({ song, onSelect }) {
-  
+function SongCard({ song, onSelect ,isCurrent }) {
   return (
     <div
-    className="song-card"
+    className={`song-card ${isCurrent ? "active" : ""}`}
     onClick={() => onSelect(song)}
     >
       <div className="song-cover">
