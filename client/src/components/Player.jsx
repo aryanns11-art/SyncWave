@@ -1,6 +1,6 @@
 import "./Player.css";
 
-function Player({ currentSong, isPlaying, onToggle, currentTime, duration , onSeek})
+function Player({ currentSong, isPlaying, onToggle, currentTime, duration , onSeek , onNext, onPrevious})
 {
     const formatTime = (time) => {
 
@@ -63,13 +63,13 @@ function Player({ currentSong, isPlaying, onToggle, currentTime, duration , onSe
 
             <div className="player-controls">
 
-                <button>⏮</button>
+                <button onClick={onPrevious}>⏮</button>
 
                 <button onClick={onToggle}>
                     {isPlaying ? "⏸" : "▶"}
                 </button>
 
-                <button>⏭</button>
+                <button onClick={onNext}>⏭</button>
 
             </div>
 

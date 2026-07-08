@@ -89,6 +89,28 @@ function App() {
 
     };
 
+    const handleNext = () => {
+
+    const nextIndex = currentIndex + 1;
+
+    if (nextIndex < songs.length) {
+
+        handleSongSelect(songs[nextIndex], nextIndex);
+
+    }
+
+};
+
+        const playPreviousSong = () => {
+
+        const previousIndex = currentIndex - 1;
+
+        if (previousIndex >= 0) {
+            handleSongSelect(songs[previousIndex], previousIndex);
+        }
+
+    };
+
     const handleSeek = (event) => {
 
         const seekTime = Number(event.target.value);
@@ -135,6 +157,8 @@ function App() {
                 currentTime={currentTime}
                 duration={duration}
                 onSeek={handleSeek}
+                onNext={handleNext}
+                onPrevious={playPreviousSong}
             />
 
         </div>
