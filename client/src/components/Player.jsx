@@ -1,6 +1,6 @@
 import "./Player.css";
 
-function Player({ currentSong, isPlaying, onToggle, currentTime, duration , onSeek , onNext, onPrevious})
+function Player({ currentSong, isPlaying, onToggle, currentTime, duration , onSeek , onNext, onPrevious, volume, onVolumeChange })
 {
     const formatTime = (time) => {
 
@@ -12,10 +12,10 @@ function Player({ currentSong, isPlaying, onToggle, currentTime, duration , onSe
     return `${minutes}:${seconds.toString().padStart(2, "0")}`;
 };
 
-    return  (
+        return (
         <div className="player">
 
-            <div className="player-info">
+            <div className="player-left">
 
                 {currentSong && (
                     <img
@@ -26,55 +26,72 @@ function Player({ currentSong, isPlaying, onToggle, currentTime, duration , onSe
                 )}
 
                 <div className="song-details">
-            
+
                     <h2>
                         {currentSong ? currentSong.title : "No Song Selected"}
                     </h2>
-            
+
                     <p>
                         {currentSong ? currentSong.artist : ""}
                     </p>
+
+                </div>
+
+            </div>
             
+
+            <div className="player-center">
+
+                <div className="player-controls">
+
+                    <button onClick={onPrevious}>⏮</button>
+
+                    <button onClick={onToggle}>
+                        {isPlaying ? "⏸" : "▶"}
+                    </button>
+
+                    <button onClick={onNext}>⏭</button>
+
+                </div>
+
+                <div className="progress-container">
+
+                    <span>{formatTime(currentTime)}</span>
+
+                    <input
+                        type="range"
+                        min="0"
+                        max={duration}
+                        value={currentTime}
+                        onChange={onSeek}
+                    />
+
+                    <span>{formatTime(duration)}</span>
+
+                </div>
+
             </div>
 
-        <div className="player-duration">
+            <div className="player-right">
 
-            {currentSong ? currentSong.duration : ""}
+                <span>🔉</span>
 
-        </div>
+                <input
+                    type="range"
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={volume}
+                    onChange={onVolumeChange}
+                />
 
-    </div>
-
-            <div className="progress-container">
-                    
-            <span>{formatTime(currentTime)}</span>
-                    
-            <input
-                type="range"
-                min="0" 
-                max={duration}
-                value={currentTime}
-                onChange={onSeek}
-            />
-        
-            <span>{formatTime(duration)}</span>
-                    
-        </div>
-
-            <div className="player-controls">
-
-                <button onClick={onPrevious}>⏮</button>
-
-                <button onClick={onToggle}>
-                    {isPlaying ? "⏸" : "▶"}
-                </button>
-
-                <button onClick={onNext}>⏭</button>
+                <span>🔊</span>
 
             </div>
 
         </div>
     );
+
 }
 
 export default Player;

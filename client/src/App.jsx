@@ -1,3 +1,4 @@
+import "./App.css";
 import { useState, useEffect, useRef } from "react";
 import SongCard from "./components/SongCard";
 import Player from "./components/Player";
@@ -12,6 +13,8 @@ function App() {
 
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
+
+    const [volume, setVolume] = useState(1);
 
     const audioRef = useRef(new Audio());
 
@@ -32,6 +35,16 @@ function App() {
             audioRef.current.play();
             setIsPlaying(true);
         }
+
+    };
+
+        const handleVolumeChange = (event) => {
+
+        const newVolume = Number(event.target.value);
+
+        setVolume(newVolume);
+
+        audioRef.current.volume = newVolume;
 
     };
 
@@ -136,10 +149,10 @@ function App() {
     return (
         <div className="App">
 
-            <h1>🎵 SyncWave</h1>
-
-            <p>Current Time: {formatTime(currentTime)}</p>
-            <p>Duration: {formatTime(duration)}</p>
+            <div className="app-header">
+                <img src="/logo.jpeg" alt="SyncWave Logo" className="app-logo" />
+                <h1>SyncWave</h1>
+            </div>
 
             {songs.map((song, index) => (
                 <SongCard
@@ -159,6 +172,8 @@ function App() {
                 onSeek={handleSeek}
                 onNext={handleNext}
                 onPrevious={playPreviousSong}
+                volume={volume}
+                onVolumeChange={handleVolumeChange}
             />
 
         </div>

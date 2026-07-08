@@ -1,27 +1,23 @@
 .player{
+    position: fixed;
+    bottom: 0;
+    left: 0;
 
-    position:fixed;
+    width: 100%;
 
-    bottom:0;
-    left:0;
+    background: #181818;
 
-    width:100%;
+    color: white;
 
-    height:90px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 
-    background:#181818;
+    padding: 12px 25px;
 
-    border-top:1px solid #333;
+    box-sizing: border-box;
 
-    display:flex;
-
-    justify-content:space-between;
-
-    align-items:center;
-
-    padding:0 40px;
-
-    box-sizing:border-box;
+    border-top: 1px solid #333;
 }
 
 .player-info h2{
@@ -49,9 +45,9 @@
 
 .player-controls button{
 
-    width:42px;
+    width:40px;
 
-    height:42px;
+    height:40px;
 
     border:none;
 
@@ -70,9 +66,9 @@
 
 .player-controls button:nth-child(2){
 
-    width:58px;
+    width:50px;
 
-    height:58px;
+    height:50px;
 
     background:#1DB954;
 
@@ -126,4 +122,61 @@
     font-weight:500;
 
     text-align:right;
+}
+
+.player-left{
+    display:flex;
+    align-items:center;
+    gap:15px;
+    width:25%;
+}
+
+.player-cover{
+    width:60px;
+    height:60px;
+
+    object-fit:cover;
+
+    border-radius:8px;
+}
+
+.song-details h2{
+    margin:0;
+    font-size:18px;
+}
+
+.song-details p{
+    margin:4px 0 0;
+    color:#b3b3b3;
+    font-size:14px;
+}
+
+.player-center{
+    width: 50%;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.player-right{
+    width: 25%;
+
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+}
+
+.progress-container{
+    width: 80%;
+
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.progress-container input{
+    flex: 1;
 }
