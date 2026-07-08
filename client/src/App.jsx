@@ -10,6 +10,10 @@ function App() {
 
     const [isPlaying, setIsPlaying] = useState(false);
 
+    const [currentTime, setCurrentTime] = useState(0);
+
+    const [duration, setDuration] = useState(0);    
+
     const audioRef = useRef(new Audio());
 
     const togglePlayPause = () => {
@@ -25,10 +29,19 @@ function App() {
 };
 
     const handleSongSelect = (selectedSong) => {
-    setCurrentSong(selectedSong);
-    setIsPlaying(true);
-    audioRef.current.src = selectedSong.file;
-    audioRef.current.play();};
+        setCurrentSong(selectedSong);
+        setIsPlaying(true);
+        audioRef.current.src = selectedSong.file;
+        
+        audioRef.current.onloadedmetadata = () => {
+        setDuration(audioRef.current.duration);
+        };
+        audioRef.current.play();
+
+        audioRef.current.ontimeupdate = () => {
+        setCurrentTime(audioRef.current.currentTime);
+        };
+    };
 
     useEffect(() => {
 
@@ -40,10 +53,24 @@ function App() {
 
     }, []);
 
+    const formatTime = (time) => {
+
+    if (isNaN(time)) return "0:00";
+
+    const minutes = Math.floor(time / 60);
+
+    const seconds = Math.floor(time % 60);
+
+    return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+};
+
     return (
         <div className="App">
 
         <h1>🎵 SyncWave</h1>
+
+        <p>Current Time: {formatTime(currentTime)}</p>
+        <p>Duration: {formatTime(duration)}</p>
 
         {songs.map((song) => (
     <SongCard
@@ -57,6 +84,8 @@ function App() {
         currentSong={currentSong}
         isPlaying={isPlaying}
         onToggle={togglePlayPause}  
+        currentTime={currentTime}
+        duration={duration}
         />
 
 

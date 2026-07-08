@@ -42,20 +42,22 @@
 
     display:flex;
 
-    gap:15px;
+    align-items:center;
+
+    gap:18px;
 }
 
 .player-controls button{
 
-    width:45px;
+    width:42px;
 
-    height:45px;
+    height:42px;
 
     border:none;
 
     border-radius:50%;
 
-    background:#1DB954;
+    background:#2d2d2d;
 
     color:white;
 
@@ -63,10 +65,77 @@
 
     font-size:18px;
 
-    transition:.3s;
+    transition:.25s;
+}
+
+.player-controls button:nth-child(2){
+
+    width:58px;
+
+    height:58px;
+
+    background:#1DB954;
+
+    font-size:24px;
 }
 
 .player-controls button:hover{
 
     transform:scale(1.1);
+}
+
+.player-info{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:18px;
+}
+
+.player-cover{
+
+    width:65px;
+
+    height:65px;
+
+    border-radius:12px;
+
+    object-fit:cover;
+
+    box-shadow:0 5px 15px rgba(0,0,0,.4);
+}
+
+.song-details{
+
+    display:flex;
+
+    flex-direction:column;
+}
+
+.player-duration{
+
+    min-width:60px;
+
+    margin-left:20px;
+
+    color:#b3b3b3;
+
+    font-size:15px;
+
+    font-weight:500;
+
+    text-align:right;
+}
+
+
+.progress-container{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-top:15px;
+}
+
+.progress-container input{
+    flex:1;
 }

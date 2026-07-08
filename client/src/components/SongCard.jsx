@@ -18,6 +18,8 @@ function SongCard({ song, onSelect ,isCurrent }) {
       <button className="play-btn">
         ▶
       </button>
+
+      
     </div>
   );
 }
