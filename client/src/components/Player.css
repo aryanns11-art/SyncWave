@@ -127,15 +127,3 @@
 
     text-align:right;
 }
-
-
-.progress-container{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    margin-top:15px;
-}
-
-.progress-container input{
-    flex:1;
-}

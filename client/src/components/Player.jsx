@@ -1,6 +1,6 @@
 import "./Player.css";
 
-function Player({ currentSong, isPlaying, onToggle, currentTime, duration })
+function Player({ currentSong, isPlaying, onToggle, currentTime, duration , onSeek})
 {
     const formatTime = (time) => {
 
@@ -51,10 +51,10 @@ function Player({ currentSong, isPlaying, onToggle, currentTime, duration })
                     
             <input
                 type="range"
-                min="0"
+                min="0" 
                 max={duration}
                 value={currentTime}
-                readOnly
+                onChange={onSeek}
             />
         
             <span>{formatTime(duration)}</span>
