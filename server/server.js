@@ -1,9 +1,9 @@
 const path = require("path");
 
-const songs = require("./data/songs");
-
 const express = require("express");
 const cors = require("cors");
+
+require("./config/db");
 
 const app = express();
 
