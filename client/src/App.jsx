@@ -2,6 +2,7 @@ import "./App.css";
 import { useState, useEffect, useRef } from "react";
 import SongCard from "./components/SongCard";
 import Player from "./components/Player";
+import UploadSong from "./components/UploadSong";   
 
 function App() {
 
@@ -153,6 +154,8 @@ function App() {
                 <img src="/logo.jpeg" alt="SyncWave Logo" className="app-logo" />
                 <h1>SyncWave</h1>
             </div>
+
+            <UploadSong />
 
             {songs.map((song, index) => (
                 <SongCard

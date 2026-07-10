@@ -1,3 +1,7 @@
+:root{
+    --player-height: 100px;
+}
+
 body{
 
     margin:0;
@@ -12,8 +16,8 @@ body{
 .App{
     width: 80%;
     margin: 0 auto;
-    padding-top: 0;
-}
+    padding-bottom: calc(var(--player-height) + 30px);
+}   
 
 h1{
 
