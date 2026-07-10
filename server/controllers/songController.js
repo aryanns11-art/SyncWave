@@ -31,31 +31,53 @@ const getAllSongs = async (req, res) => {
 };
 
 
-
 const createSong = async (req, res) => {
 
-    console.log("Body:");
-    console.log(req.body);
+try{
+            console.log("Body:");
+            console.log(req.body);
+    
+            console.log("Files:");
+            console.log(req.files);
+    
+            const { title, artist } = req.body;
+    
+            const songFile = req.files.song[0].filename;
+    
+            const coverFile = req.files.cover[0].filename;
+    
+    
+            const file = `http://localhost:5000/songs/${songFile}`;
+    
+            const cover = `http://localhost:5000/covers/${coverFile}`;
+    
+            const duration = "0:00";
+    
+            await pool.query(
+            `INSERT INTO songs
+            (title, artist, duration, file_path, cover_path)
+            VALUES ($1, $2, $3, $4, $5)`,
+            [title, artist, duration, file, cover]
+        );
+    
+        console.log(title);
+        console.log(artist);
+        console.log(songFile);
+        console.log(coverFile);
+    
+        res.status(201).json({
+        message: "Song uploaded successfully!"
+        });
+    }
+    catch (err) {
+            console.error(err);
 
-    console.log("Files:");
-    console.log(req.files);
-
-    const { title, artist } = req.body;
-
-    const songFile = req.files.song[0].filename;
-
-    const coverFile = req.files.cover[0].filename;
-
-    console.log(title);
-console.log(artist);
-console.log(songFile);
-console.log(coverFile);
-
-    res.json({
-        message: "Create Song API Working!"
-    });
-
+            res.status(500).json({
+                message: "Database Error"
+            });
+        }
 };
+
 
 module.exports = {
     getAllSongs,
