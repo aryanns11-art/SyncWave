@@ -30,6 +30,34 @@ const getAllSongs = async (req, res) => {
 
 };
 
+
+
+const createSong = async (req, res) => {
+
+    console.log("Body:");
+    console.log(req.body);
+
+    console.log("Files:");
+    console.log(req.files);
+
+    const { title, artist } = req.body;
+
+    const songFile = req.files.song[0].filename;
+
+    const coverFile = req.files.cover[0].filename;
+
+    console.log(title);
+console.log(artist);
+console.log(songFile);
+console.log(coverFile);
+
+    res.json({
+        message: "Create Song API Working!"
+    });
+
+};
+
 module.exports = {
     getAllSongs,
+    createSong,
 };
