@@ -19,12 +19,28 @@ function App() {
 
     const audioRef = useRef(new Audio());
 
+    const fetchSongs = async () => {
+
+        try {
+
+            const response = await fetch("http://localhost:5000/api/songs");
+
+            const data = await response.json();
+
+            setSongs(data);
+
+        } catch (error) {
+
+            console.error("Error fetching songs:", error);
+
+        }
+
+    };
+
     useEffect(() => {
-        fetch("http://localhost:5000/api/songs")
-            .then((response) => response.json())
-            .then((data) => {
-                setSongs(data);
-            });
+
+        fetchSongs();
+
     }, []);
 
     const togglePlayPause = () => {
@@ -155,7 +171,7 @@ function App() {
                 <h1>SyncWave</h1>
             </div>
 
-            <UploadSong />
+            <UploadSong onUploadSuccess={fetchSongs} />  
 
             {songs.map((song, index) => (
                 <SongCard

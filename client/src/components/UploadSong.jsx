@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "./UploadSong.css";
 
-function UploadSong() {
+function UploadSong({ onUploadSuccess }) {
 
     const [title, setTitle] = useState("");
 
@@ -30,6 +30,7 @@ function UploadSong() {
         const data = await response.json();
 
         alert(data.message);
+        onUploadSuccess();  
 
     } 
     catch (error) {
