@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./UploadSong.css";
 
 function UploadSong({ onUploadSuccess }) {
@@ -10,6 +11,8 @@ function UploadSong({ onUploadSuccess }) {
     const [song, setSong] = useState(null);
 
     const [cover, setCover] = useState(null);
+
+    const navigate = useNavigate();
 
     const handleUpload = async () => {
 
@@ -30,6 +33,7 @@ function UploadSong({ onUploadSuccess }) {
         const data = await response.json();
 
         alert(data.message);
+        navigate("/");
         onUploadSuccess();  
 
     } 
