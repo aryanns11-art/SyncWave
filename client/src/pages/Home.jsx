@@ -13,6 +13,8 @@ function Home() {
 
     const [isPlaying, setIsPlaying] = useState(false);
 
+    const [searchTerm, setSearchTerm] = useState("");
+
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
 
@@ -163,20 +165,50 @@ function Home() {
 
     };
 
+    const filteredSongs = songs.filter((song) => {
+
+    return (
+
+        song.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+
+        song.artist.toLowerCase().includes(searchTerm.toLowerCase())
+
+        );
+
+    });
+
     return (
 
         <div className="App">
 
-            {songs.map((song, index) => (
+            <div className="search-container">
 
+    <input
+        type="text"
+        placeholder="🔍 Search songs..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="search-input"
+    />
+
+</div>
+
+            {filteredSongs.length > 0 ? (
+                filteredSongs.map((song, index) => (
+            
                 <SongCard
                     key={song.id}
                     song={song}
                     onSelect={() => handleSongSelect(song, index)}
                     isCurrent={currentSong?.id === song.id}
                 />
-
-            ))}
+            ))
+        ) : (
+        
+            <p className="no-results">
+                No songs found.
+            </p>
+        )}
 
             <Player
                 currentSong={currentSong}
