@@ -20,12 +20,17 @@ function SongCard({ song, onSelect, onDelete, isCurrent }) {
             <button className="play-btn">
               ▶
             </button>
-        
+
             <button
               className="delete-btn"
-              onClick={onDelete}>
-              🗑 
+              onClick={(e) => {
+                  e.stopPropagation();
+                  onDelete();
+              }}
+          >
+              🗑
           </button>
+
       </div>
       
     </div>

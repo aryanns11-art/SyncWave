@@ -38,12 +38,6 @@ const createSong = async (req, res) => {
 
     try {
 
-        console.log("Body:");
-        console.log(req.body);
-
-        console.log("Files:");
-        console.log(req.files);
-
         const { title, artist } = req.body;
         const songFile = req.files.song[0].filename;
         const coverFile = req.files.cover[0].filename;
@@ -57,11 +51,6 @@ const createSong = async (req, res) => {
             VALUES ($1, $2, $3, $4, $5)`,
             [title, artist, duration, file, cover]
         );
-
-        console.log(title);
-        console.log(artist);
-        console.log(songFile);
-        console.log(coverFile);
 
         res.status(201).json({
             message: "Song uploaded successfully!"
@@ -101,7 +90,6 @@ const deleteSong = async (req, res) => {
 
         const song = result.rows[0];
 
-        console.log(song);
 
         const songPath = path.join(
             __dirname,
@@ -119,8 +107,6 @@ const deleteSong = async (req, res) => {
             path.basename(song.cover_path)
         );
 
-        console.log("Song Path:", songPath);
-        console.log("Cover Path:", coverPath);
 
         if (fs.existsSync(songPath)) 
         {

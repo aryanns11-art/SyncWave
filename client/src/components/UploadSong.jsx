@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./UploadSong.css";
 
-function UploadSong({ onUploadSuccess }) {
+function UploadSong() {
 
     const [title, setTitle] = useState("");
 
@@ -34,7 +34,6 @@ function UploadSong({ onUploadSuccess }) {
 
         alert(data.message);
         navigate("/");
-        onUploadSuccess();  
 
     } 
     catch (error) {
