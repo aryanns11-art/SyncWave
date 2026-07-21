@@ -1,6 +1,6 @@
 import "./SongCard.css";
 
-function SongCard({ song, onSelect ,isCurrent }) {
+function SongCard({ song, onSelect, onDelete, isCurrent }) {
   return (
     <div
     className={`song-card ${isCurrent ? "active" : ""}`}
@@ -15,10 +15,18 @@ function SongCard({ song, onSelect ,isCurrent }) {
         <p>{song.artist}</p>
       </div>
 
-      <button className="play-btn">
-        ▶
-      </button>
+      <div className="song-actions">
 
+            <button className="play-btn">
+              ▶
+            </button>
+        
+            <button
+              className="delete-btn"
+              onClick={onDelete}>
+              🗑 
+          </button>
+      </div>
       
     </div>
   );

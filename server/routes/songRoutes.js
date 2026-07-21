@@ -4,7 +4,7 @@ const router = express.Router();
 
 const upload = require("../middlewares/upload");
 
-const { getAllSongs, createSong } = require("../controllers/songController");
+const {getAllSongs,createSong,deleteSong,} = require("../controllers/songController");
 router.get("/", getAllSongs);
 
 router.post(
@@ -15,5 +15,7 @@ router.post(
     ]),
     createSong
 );  
+
+router.delete("/:id", deleteSong);
 
 module.exports = router;

@@ -40,6 +40,41 @@ function Home() {
 
     };
 
+    const handleDeleteSong = async (id) => {
+
+    const confirmDelete = window.confirm(
+        "Are you sure you want to delete this song?"
+    );
+
+    if (!confirmDelete) {
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            `http://localhost:5000/api/songs/${id}`,
+            {
+                method: "DELETE",
+            }
+        );
+
+        const data = await response.json();
+
+        alert(data.message);
+
+        fetchSongs();
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert("Failed to delete song.");
+
+    }
+
+};
+
     useEffect(() => {
 
         fetchSongs();
@@ -185,7 +220,7 @@ function Home() {
 
     <input
         type="text"
-        placeholder="🔍 Search songs..."
+        placeholder="Search songs..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="search-input"
@@ -200,6 +235,7 @@ function Home() {
                     key={song.id}
                     song={song}
                     onSelect={() => handleSongSelect(song, index)}
+                    onDelete={() => handleDeleteSong(song.id)}
                     isCurrent={currentSong?.id === song.id}
                 />
             ))
