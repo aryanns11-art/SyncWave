@@ -1,8 +1,21 @@
 import "./Navbar.css";
-
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
 
 function Navbar() {
+
+    const { user, logout } = useContext(AuthContext);
+
+    const navigate = useNavigate();
+
+    const handleLogout = () => {
+
+        logout();
+
+        navigate("/login");
+
+    };
 
     return (
 
@@ -24,7 +37,25 @@ function Navbar() {
 
                 <Link to="/">Home</Link>
 
-                <Link to="/upload">Upload</Link>
+                {!user && (
+                    <>
+                        <Link to="/login">Login</Link>
+                        <Link to="/register">Register</Link>
+                    </>
+                )}
+
+                {user?.role === "admin" && (
+                    <Link to="/upload">Upload</Link>
+                )}
+
+                {user && (
+                    <button
+                        className="logout-btn"
+                        onClick={handleLogout}
+                    >
+                        Logout
+                    </button>
+                )}
 
             </div>
 
