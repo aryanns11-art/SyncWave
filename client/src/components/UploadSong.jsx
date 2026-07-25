@@ -1,3 +1,6 @@
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./UploadSong.css";
@@ -11,6 +14,8 @@ function UploadSong() {
     const [song, setSong] = useState(null);
 
     const [cover, setCover] = useState(null);
+
+    const { token } = useContext(AuthContext);
 
     const navigate = useNavigate();
 
@@ -26,16 +31,22 @@ function UploadSong() {
     try {
 
         const response = await fetch("http://localhost:5000/api/songs", {
-            method: "POST",
-            body: formData,
-        });
+        method: "POST",
+        headers: {Authorization: `Bearer ${token}`,},
+        body: formData,
+    });
 
         const data = await response.json();
 
-        alert(data.message);
-        navigate("/");
+        if (!response.ok) {
+            alert(data.message);
+            return;
+        }
 
-    } 
+        alert(data.message);
+        navigate("/");      
+    }
+    
     catch (error) {
 
         console.error(error);

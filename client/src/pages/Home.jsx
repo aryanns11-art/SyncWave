@@ -1,3 +1,6 @@
+import { useContext } from "react";
+import { AuthContext } from "../context/AuthContext";
+
 import "./Home.css";
 
 import { useState, useEffect, useRef } from "react";
@@ -10,6 +13,8 @@ function Home() {
     const [songs, setSongs] = useState([]);
     const [currentSong, setCurrentSong] = useState(null);
     const [currentIndex, setCurrentIndex] = useState(-1);
+
+    const { token } = useContext(AuthContext);
 
     const [isPlaying, setIsPlaying] = useState(false);
 
@@ -53,16 +58,22 @@ function Home() {
     try {
 
         const response = await fetch(
-            `http://localhost:5000/api/songs/${id}`,
-            {
-                method: "DELETE",
-            }
-        );
+       `http://localhost:5000/api/songs/${id}`,
+       {
+           method: "DELETE",
+           headers: {Authorization: `Bearer ${token}`,},
+       }
+    );
 
         const data = await response.json();
-
+        
+        if (!response.ok) {
+            alert(data.message);
+            return;
+        }
+        
         alert(data.message);
-
+        
         fetchSongs();
 
     } catch (error) {
