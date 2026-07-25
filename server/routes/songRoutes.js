@@ -1,3 +1,6 @@
+const authorizeRole = require("../middlewares/roleMiddleware");
+const authenticateToken = require("../middlewares/authMiddleware");
+
 const express = require("express");
 
 const router = express.Router();
@@ -9,13 +12,19 @@ router.get("/", getAllSongs);
 
 router.post(
     "/",
-    upload.fields([                             
+    authenticateToken,
+    authorizeRole("admin"),
+    upload.fields([
         { name: "song", maxCount: 1 },
-        { name: "cover", maxCount: 1 },
+        { name: "cover", maxCount: 1 }
     ]),
     createSong
-);  
+);
 
-router.delete("/:id", deleteSong);
-
+router.delete(
+    "/:id",
+    authenticateToken,
+    authorizeRole("admin"),
+    deleteSong
+);
 module.exports = router;
