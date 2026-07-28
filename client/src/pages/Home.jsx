@@ -90,6 +90,14 @@ function Home() {
 
         fetchSongs();
 
+        return () => {
+
+            audioRef.current.pause();
+
+            audioRef.current.currentTime = 0;
+
+        };
+
     }, []);
 
     const togglePlayPause = () => {
