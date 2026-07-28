@@ -1,8 +1,10 @@
 import "./App.css";
 
 import { Routes, Route } from "react-router-dom";
-
 import Navbar from "./components/Navbar";
+
+import ProtectedRoute from "./components/ProtectedRoute";
+import AdminRoute from "./components/AdminRoute";
 
 import Home from "./pages/Home";
 import Upload from "./pages/Upload";
@@ -21,16 +23,23 @@ function App() {
 
                 <Route path="/" element={<Home />} />
 
-                <Route path="/upload" element={<Upload />} />
+                <Route
+                    path="/upload"
+                    element={
+                        <AdminRoute>
+                            <Upload />
+                        </AdminRoute>
+                    }
+                />
 
                 <Route path="/login" element={<Login />} />
-
+                
                 <Route path="/register" element={<Register />} />
-
+                
             </Routes>
 
         </>
-
+        
     );
 
 }

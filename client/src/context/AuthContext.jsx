@@ -7,6 +7,9 @@ function AuthProvider({ children }) {
     const [token, setToken] = useState(null);
 
     const [user, setUser] = useState(null);
+    
+    const [loading, setLoading] = useState(true);
+
 
     useEffect(() => {
 
@@ -19,8 +22,9 @@ function AuthProvider({ children }) {
             setToken(savedToken);
 
             setUser(JSON.parse(savedUser));
-
         }
+
+        setLoading(false);
 
     }, []);
 
@@ -54,6 +58,7 @@ function AuthProvider({ children }) {
             value={{
                 token,
                 user,
+                loading,
                 login,
                 logout
             }}
