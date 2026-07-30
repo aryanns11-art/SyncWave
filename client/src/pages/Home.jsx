@@ -1,9 +1,9 @@
-import { useContext } from "react";
+import { useContext, useState, useEffect, useRef } from "react";
 import { AuthContext } from "../context/AuthContext";
 
 import "./Home.css";
 
-import { useState, useEffect, useRef } from "react";
+import socket from "../socket";
 
 import SongCard from "../components/SongCard";
 import Player from "../components/Player";
@@ -31,7 +31,9 @@ function Home() {
 
         try {
 
-            const response = await fetch("http://localhost:5000/api/songs");
+            const response = await fetch(
+                "http://localhost:5000/api/songs"
+            );
 
             const data = await response.json();
 
@@ -47,45 +49,49 @@ function Home() {
 
     const handleDeleteSong = async (id) => {
 
-    const confirmDelete = window.confirm(
-        "Are you sure you want to delete this song?"
-    );
+        const confirmDelete = window.confirm(
+            "Are you sure you want to delete this song?"
+        );
 
-    if (!confirmDelete) {
-        return;
-    }
-
-    try {
-
-        const response = await fetch(
-       `http://localhost:5000/api/songs/${id}`,
-       {
-           method: "DELETE",
-           headers: {Authorization: `Bearer ${token}`,},
-       }
-    );
-
-        const data = await response.json();
-        
-        if (!response.ok) {
-            alert(data.message);
+        if (!confirmDelete) {
             return;
         }
-        
-        alert(data.message);
-        
-        fetchSongs();
 
-    } catch (error) {
+        try {
 
-        console.error(error);
+            const response = await fetch(
+                `http://localhost:5000/api/songs/${id}`,
+                {
+                    method: "DELETE",
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
 
-        alert("Failed to delete song.");
+            const data = await response.json();
 
-    }
+            if (!response.ok) {
+                alert(data.message);
+                return;
+            }
 
-};
+            alert(data.message);
 
+            fetchSongs();
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert("Failed to delete song.");
+
+        }
+
+    };
+
+    // Fetch songs when Home loads
+    // Stop audio when Home unmounts
     useEffect(() => {
 
         fetchSongs();
@@ -100,14 +106,42 @@ function Home() {
 
     }, []);
 
+    // Socket.IO connection
+    useEffect(() => {
+
+        const handleConnect = () => {
+
+            console.log(
+                "Connected to SyncWave server:",
+                socket.id
+            );
+
+        };
+
+        socket.on("connect", handleConnect);
+
+        return () => {
+
+            socket.off("connect", handleConnect);
+
+        };
+
+    }, []);
+
     const togglePlayPause = () => {
 
         if (isPlaying) {
+
             audioRef.current.pause();
+
             setIsPlaying(false);
+
         } else {
+
             audioRef.current.play();
+
             setIsPlaying(true);
+
         }
 
     };
@@ -125,9 +159,11 @@ function Home() {
     const handleSongSelect = (selectedSong, index) => {
 
         setCurrentSong(selectedSong);
+
         setCurrentIndex(index);
 
         setCurrentTime(0);
+
         setDuration(0);
 
         setIsPlaying(true);
@@ -141,15 +177,21 @@ function Home() {
         audioRef.current.play();
 
         audioRef.current.onloadedmetadata = () => {
+
             setDuration(audioRef.current.duration);
+
         };
 
         audioRef.current.ontimeupdate = () => {
+
             setCurrentTime(audioRef.current.currentTime);
+
         };
 
         audioRef.current.onended = () => {
+
             playNextSong(index);
+
         };
 
     };
@@ -160,13 +202,19 @@ function Home() {
 
         if (nextIndex < songs.length) {
 
-            handleSongSelect(songs[nextIndex], nextIndex);
+            handleSongSelect(
+                songs[nextIndex],
+                nextIndex
+            );
 
         } else {
 
             setIsPlaying(false);
+
             setCurrentSong(null);
+
             setCurrentIndex(-1);
+
             setCurrentTime(0);
 
         }
@@ -179,7 +227,10 @@ function Home() {
 
         if (nextIndex < songs.length) {
 
-            handleSongSelect(songs[nextIndex], nextIndex);
+            handleSongSelect(
+                songs[nextIndex],
+                nextIndex
+            );
 
         }
 
@@ -191,7 +242,10 @@ function Home() {
 
         if (previousIndex >= 0) {
 
-            handleSongSelect(songs[previousIndex], previousIndex);
+            handleSongSelect(
+                songs[previousIndex],
+                previousIndex
+            );
 
         }
 
@@ -215,17 +269,23 @@ function Home() {
 
         const seconds = Math.floor(time % 60);
 
-        return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+        return `${minutes}:${seconds
+            .toString()
+            .padStart(2, "0")}`;
 
     };
 
     const filteredSongs = songs.filter((song) => {
 
-    return (
+        return (
 
-        song.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            song.title
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase()) ||
 
-        song.artist.toLowerCase().includes(searchTerm.toLowerCase())
+            song.artist
+                .toLowerCase()
+                .includes(searchTerm.toLowerCase())
 
         );
 
@@ -237,33 +297,45 @@ function Home() {
 
             <div className="search-container">
 
-    <input
-        type="text"
-        placeholder="Search songs..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="search-input"
-    />
+                <input
+                    type="text"
+                    placeholder="Search songs..."
+                    value={searchTerm}
+                    onChange={(e) =>
+                        setSearchTerm(e.target.value)
+                    }
+                    className="search-input"
+                />
 
-</div>
+            </div>
 
             {filteredSongs.length > 0 ? (
+
                 filteredSongs.map((song, index) => (
-            
-                <SongCard
-                    key={song.id}
-                    song={song}
-                    onSelect={() => handleSongSelect(song, index)}
-                    onDelete={() => handleDeleteSong(song.id)}
-                    isCurrent={currentSong?.id === song.id}
-                />
-            ))
-        ) : (
-        
-            <p className="no-results">
-                No songs found.
-            </p>
-        )}
+
+                    <SongCard
+                        key={song.id}
+                        song={song}
+                        onSelect={() =>
+                            handleSongSelect(song, index)
+                        }
+                        onDelete={() =>
+                            handleDeleteSong(song.id)
+                        }
+                        isCurrent={
+                            currentSong?.id === song.id
+                        }
+                    />
+
+                ))
+
+            ) : (
+
+                <p className="no-results">
+                    No songs found.
+                </p>
+
+            )}
 
             <Player
                 currentSong={currentSong}

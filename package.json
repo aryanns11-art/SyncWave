@@ -3,6 +3,7 @@
     "bcrypt": "^6.0.0",
     "dotenv": "^17.4.2",
     "jsonwebtoken": "^9.0.3",
-    "react-router-dom": "^7.18.1"
+    "react-router-dom": "^7.18.1",
+    "socket.io": "^4.8.3"
   }
 }
