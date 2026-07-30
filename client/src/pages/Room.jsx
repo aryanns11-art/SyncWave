@@ -38,7 +38,7 @@ function Room() {
 
             console.log("Room created:", roomId);
 
-            setCreatedRoom(roomId);
+             navigate(`/room/${roomId}`);
 
         };
 

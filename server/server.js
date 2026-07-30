@@ -6,7 +6,6 @@ const path = require("path");
 const http = require("http");
 const { Server } = require("socket.io");
 
-
 require("./config/db");
 
 const songRoutes = require("./routes/songRoutes");
@@ -36,33 +35,7 @@ io.on("connection", (socket) => {
 
     console.log("User connected:", socket.id);
 
-    // Create a room
-    socket.on("create-room", () => {
-
-        const roomId = Math.random()
-            .toString(36)
-            .substring(2, 8)
-            .toUpperCase();
-
-        rooms.set(roomId, {
-            host: socket.id,
-            members: [socket.id],
-        });
-
-        socket.join(roomId);
-
-        socket.roomId = roomId;
-
-        socket.emit("room-created", {
-            roomId,
-        });
-
-        console.log("Room created:", roomId);
-
-    });
-
-    // Join a room
-    socket.on("join-room", (roomId) => {
+    socket.on("get-room-state", (roomId) => {
 
         const room = rooms.get(roomId);
 
@@ -73,23 +46,122 @@ io.on("connection", (socket) => {
             });
 
             return;
+        }
+
+        socket.emit("room-state", {
+            roomId,
+            memberCount: room.members.length,
+            isHost: room.host === socket.id,
+        });
+
+    });
+
+    socket.on("create-room", () => {
+
+        let roomId;
+
+        // Generate a unique room ID
+        do {
+
+            roomId = Math.random()
+                .toString(36)
+                .substring(2, 8)
+                .toUpperCase();
+
+        } while (rooms.has(roomId));
+
+
+        // Create room
+        rooms.set(roomId, {
+
+            host: socket.id,
+
+            members: [
+                socket.id
+            ],
+
+        });
+
+
+        // Join Socket.IO room
+        socket.join(roomId);
+
+        // Store room ID on socket
+        socket.roomId = roomId;
+
+
+        // Tell creator
+        socket.emit("room-created", {
+
+            roomId,
+
+            memberCount: 1,
+
+            isHost: true,
+
+        });
+
+
+        console.log("Room created:", roomId);
+
+    });
+
+
+    socket.on("join-room", (roomId) => {
+
+        const room = rooms.get(roomId);
+
+
+        // Room doesn't exist
+        if (!room) {
+
+            socket.emit("room-error", {
+
+                message: "Room not found",
+
+            });
+
+            return;
 
         }
 
-        room.members.push(socket.id);
 
+        // Prevent duplicate membership
+        if (!room.members.includes(socket.id)) {
+
+            room.members.push(socket.id);
+
+        }
+
+
+        // Join Socket.IO room
         socket.join(roomId);
 
+        // Store room ID on socket
         socket.roomId = roomId;
 
+
+        // Tell everyone in the room
         io.to(roomId).emit("room-updated", {
+
             roomId,
+
             memberCount: room.members.length,
+
         });
 
+
+        // Tell the joining user
         socket.emit("room-joined", {
+
             roomId,
+
+            memberCount: room.members.length,
+
+            isHost: room.host === socket.id,
+
         });
+
 
         console.log(
             "User",
@@ -100,56 +172,173 @@ io.on("connection", (socket) => {
 
     });
 
-    // Disconnect
-    socket.on("disconnect", () => {
 
-        console.log("User disconnected:", socket.id);
-
-        const roomId = socket.roomId;
-
-        if (!roomId) {
-            return;
-        }
+    socket.on("leave-room", (roomId) => {
 
         const room = rooms.get(roomId);
 
+
         if (!room) {
+
             return;
+
         }
 
+
+        // Remove user from room
         room.members = room.members.filter(
             (memberId) => memberId !== socket.id
         );
 
-        // If host leaves, remove the room for now
+
+        // Leave Socket.IO room
+        socket.leave(roomId);
+
+        // Remove room reference
+        socket.roomId = null;
+
+
+        // If host leaves
+        if (room.host === socket.id) {
+
+            rooms.delete(roomId);
+
+            // Notify remaining members
+            io.to(roomId).emit("room-closed");
+
+            console.log(
+                "Room closed because host left:",
+                roomId
+            );
+
+            return;
+
+        }
+
+
+        // If no members remain
+        if (room.members.length === 0) {
+
+            rooms.delete(roomId);
+
+            console.log(
+                "Empty room deleted:",
+                roomId
+            );
+
+            return;
+
+        }
+
+
+        // Update remaining members
+        io.to(roomId).emit("room-updated", {
+
+            roomId,
+
+            memberCount: room.members.length,
+
+        });
+
+
+        console.log(
+            "User",
+            socket.id,
+            "left room",
+            roomId
+        );
+
+    });
+
+
+    socket.on("disconnect", () => {
+
+        console.log(
+            "User disconnected:",
+            socket.id
+        );
+
+
+        const roomId = socket.roomId;
+
+
+        // User wasn't in a room
+        if (!roomId) {
+
+            return;
+
+        }
+
+
+        const room = rooms.get(roomId);
+
+
+        if (!room) {
+
+            return;
+
+        }
+
+
+        // Remove user
+        room.members = room.members.filter(
+            (memberId) => memberId !== socket.id
+        );
+
+
+        // If disconnected user was host
         if (room.host === socket.id) {
 
             rooms.delete(roomId);
 
             io.to(roomId).emit("room-closed");
 
+            console.log(
+                "Room closed because host disconnected:",
+                roomId
+            );
+
             return;
 
         }
 
-        // If no members remain, remove room
+
+        // If room becomes empty
         if (room.members.length === 0) {
 
             rooms.delete(roomId);
 
+            console.log(
+                "Empty room deleted:",
+                roomId
+            );
+
             return;
 
         }
 
+
+        // Notify remaining members
         io.to(roomId).emit("room-updated", {
+
             roomId,
+
             memberCount: room.members.length,
+
         });
+
+
+        console.log(
+            "User disconnected from room:",
+            roomId
+        );
 
     });
 
 });
 
 server.listen(5000, () => {
+
     console.log("Server running on port 5000");
+
 });

@@ -11,6 +11,7 @@ import Upload from "./pages/Upload";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Room from "./pages/Room";
+import RoomPage from "./pages/RoomPage";
 
 function App() {
 
@@ -33,12 +34,21 @@ function App() {
                     }
                 />
 
+                <Route
+                    path="/room/:roomId"
+                    element={
+                        <ProtectedRoute>
+                            <RoomPage />
+                        </ProtectedRoute>
+                    }
+                />
+
                 <Route path="/login" element={<Login />} />
                 
                 <Route path="/register" element={<Register />} />
 
                 <Route path="/rooms" element={<Room />} />
-                
+
             </Routes>
 
         </>
