@@ -57,6 +57,8 @@ function Navbar() {
                     </button>
                 )}
 
+                <Link to="/rooms">Rooms</Link>
+
             </div>
 
         </nav>
