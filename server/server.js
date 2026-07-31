@@ -52,6 +52,9 @@ io.on("connection", (socket) => {
             roomId,
             memberCount: room.members.length,
             isHost: room.host === socket.id,
+            currentSong: room.currentSong,
+            isPlaying: room.isPlaying,
+            currentTime: room.currentTime,
         });
 
     });
@@ -73,13 +76,11 @@ io.on("connection", (socket) => {
 
         // Create room
         rooms.set(roomId, {
-
             host: socket.id,
-
-            members: [
-                socket.id
-            ],
-
+            members: [socket.id],
+            currentSong: null,
+            isPlaying: false,
+            currentTime: 0,
         });
 
 
@@ -333,6 +334,33 @@ io.on("connection", (socket) => {
             roomId
         );
 
+    });
+
+    socket.on("select-song", ({ roomId, song }) => {
+
+        const room = rooms.get(roomId);
+        
+        if (!room) {
+            return;
+        }
+    
+        // Only the host can control the room's song
+        if (room.host !== socket.id) {
+            socket.emit("room-error", {
+                message: "Only the host can change the song."
+            });
+        
+            return;
+        }
+    
+        room.currentSong = song;
+        room.currentTime = 0;
+        room.isPlaying = false;
+    
+        io.to(roomId).emit("room-song-changed", {
+            song,
+        });
+    
     });
 
 });
