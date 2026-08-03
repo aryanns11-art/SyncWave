@@ -1,4 +1,6 @@
-import { useEffect, useState, useRef } from "react";
+import Player from "../components/Player";
+import usePlayer from "../hooks/usePlayer";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import socket from "../socket";
@@ -6,28 +8,43 @@ import SongCard from "../components/SongCard";
 
 function RoomPage() {
 
-    const audioRef = useRef(new Audio());
-
     const { roomId } = useParams();
 
     const navigate = useNavigate();
 
     const [memberCount, setMemberCount] = useState(0);
-    const [isHost, setIsHost] = useState(false);
 
-    const [currentSong, setCurrentSong] = useState(null);
+    const [isHost, setIsHost] = useState(false);
 
     const [songs, setSongs] = useState([]);
 
     const [error, setError] = useState("");
 
     const [searchTerm, setSearchTerm] = useState("");
-    const [isPlaying, setIsPlaying] = useState(false);
-    const [currentTime, setCurrentTime] = useState(0);
-    const [duration, setDuration] = useState(0);
-    const [volume, setVolume] = useState(1);
 
-    // Fetch available songs
+    const {
+
+        currentSong,
+
+        handleSongSelect,
+
+        isPlaying,
+        togglePlayPause,
+
+        currentTime,
+        duration,
+
+        handleSeek,
+
+        handleNext,
+        playPreviousSong,
+
+        volume,
+        handleVolumeChange,
+
+    } = usePlayer(songs);
+
+    // Fetch songs
     const fetchSongs = async () => {
 
         try {
@@ -48,9 +65,11 @@ function RoomPage() {
 
             setSongs(data);
 
-        } catch (error) {
+        }
 
-            console.error("Error fetching songs:", error);
+        catch (error) {
+
+            console.error(error);
 
             setError("Failed to load songs.");
 
@@ -58,14 +77,25 @@ function RoomPage() {
 
     };
 
+    // Load songs once
     useEffect(() => {
 
-        // Receive current room state
+        fetchSongs();
+
+    }, []);
+
+    // Socket listeners
+    useEffect(() => {
+
+        if (songs.length === 0) {
+            return;
+        }
+
         const handleRoomState = ({
             roomId: stateRoomId,
             memberCount,
             isHost,
-            currentSong
+            currentSong,
         }) => {
 
             if (stateRoomId !== roomId) {
@@ -73,15 +103,28 @@ function RoomPage() {
             }
 
             setMemberCount(memberCount);
+
             setIsHost(isHost);
-            setCurrentSong(currentSong);
+
+            if (currentSong) {
+
+                const index = songs.findIndex(
+                    (song) => song.id === currentSong.id
+                );
+
+                if (index !== -1) {
+
+                    handleSongSelect(currentSong, index);
+
+                }
+
+            }
 
         };
 
-        // Room member count changed
         const handleRoomUpdated = ({
             roomId: updatedRoomId,
-            memberCount
+            memberCount,
         }) => {
 
             if (updatedRoomId !== roomId) {
@@ -92,21 +135,27 @@ function RoomPage() {
 
         };
 
-        // Another event changed the current song
         const handleRoomSongChanged = ({ song }) => {
 
-            setCurrentSong(song);
+    // Host already started playback locally
+    if (isHost) return;
 
-        };
+    const index = songs.findIndex(
+        (s) => s.id === song.id
+    );
 
-        // Room error
+    if (index !== -1) {
+        handleSongSelect(song, index);
+    }
+
+};
+
         const handleRoomError = ({ message }) => {
 
             setError(message);
 
         };
 
-        // Host closed room
         const handleRoomClosed = () => {
 
             alert("The host closed the room.");
@@ -125,10 +174,7 @@ function RoomPage() {
 
         socket.on("room-closed", handleRoomClosed);
 
-        // Ask server for current room state
         socket.emit("get-room-state", roomId);
-
-        fetchSongs();
 
         return () => {
 
@@ -136,10 +182,7 @@ function RoomPage() {
 
             socket.off("room-updated", handleRoomUpdated);
 
-            socket.off(
-                "room-song-changed",
-                handleRoomSongChanged
-            );
+            socket.off("room-song-changed", handleRoomSongChanged);
 
             socket.off("room-error", handleRoomError);
 
@@ -147,15 +190,22 @@ function RoomPage() {
 
         };
 
-    }, [roomId, navigate]);
+    }, [songs, roomId, navigate, handleSongSelect, isHost]);
 
-    const handleSongSelect = (song) => {
+    const selectRoomSong = (song, index) => {
 
         setError("");
 
+        // Play immediately for host
+        handleSongSelect(song, index);
+
+        // Tell everyone else
         socket.emit("select-song", {
+
             roomId,
-            song
+
+            song,
+
         });
 
     };
@@ -168,118 +218,110 @@ function RoomPage() {
 
     };
 
-    return (
+return (
 
-        <div className="room-page">
+    <div className="room-page">
 
-            <h1>SyncWave Room</h1>
+        <h1>SyncWave Room</h1>
 
-            <h2>Room Code: {roomId}</h2>
+        <h2>Room Code: {roomId}</h2>
 
-            {error && (
-                <p>{error}</p>
-            )}
+        {error && (
+
+            <p>{error}</p>
+
+        )}
+
+        <p>
+            Members: {memberCount}
+        </p>
+
+        {isHost && (
 
             <p>
-                Members: {memberCount}
+                You are the host 👑
             </p>
 
-            {isHost && (
-                <p>
-                    You are the host 👑
-                </p>
-            )}
+        )}
 
-            <hr />
+        <hr />
 
-            {/* Host Controls */}
-            {isHost && (
+        {/* Host Controls */}
 
-                <div>
+        {isHost && (
 
-                    <h3>Host Controls</h3>
-
-                    <input
-                        type="text"
-                        placeholder="Search songs..."
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                    />
-
-
-                    {songs.length > 0 ? (
-
-                        songs
-                            .filter((song) =>
-                                song.title
-                                    .toLowerCase()
-                                    .includes(searchTerm.toLowerCase()) ||
-
-                                song.artist
-                                    .toLowerCase()
-                                    .includes(searchTerm.toLowerCase())
-                            )
-                            .map((song) => (
-                            
-                                <SongCard
-                                    key={song.id}
-                                    song={song}
-                                    onSelect={() => handleSongSelect(song)}
-                                    isCurrent={currentSong?.id === song.id}
-                                />
-                            
-                        ))
-
-                    ) : (
-
-                        <p>No songs available.</p>
-
-                    )}
-
-                </div>
-
-            )}
-
-            <hr />
-
-            {/* Current Song */}
             <div>
 
-                <h3>Now Playing</h3>
+                <h3>Host Controls</h3>
 
-                {currentSong ? (
+                <input
+                    type="text"
+                    placeholder="Search songs..."
+                    value={searchTerm}
+                    onChange={(e) =>
+                        setSearchTerm(e.target.value)
+                    }
+                />
 
-                    <div>
+                {songs
+                    .filter((song) =>
 
-                        <h2>
-                            {currentSong.title}
-                        </h2>
+                        song.title
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase()) ||
 
-                        <p>
-                            {currentSong.artist}
-                        </p>
+                        song.artist
+                            .toLowerCase()
+                            .includes(searchTerm.toLowerCase())
 
-                    </div>
+                    )
+                    .map((song, index) => (
 
-                ) : (
+                        <SongCard
+                            key={song.id}
+                            song={song}
+                            onSelect={() =>
+                                selectRoomSong(song, index)
+                            }
+                            isCurrent={
+                                currentSong?.id === song.id
+                            }
+                        />
 
-                    <p>
-                        No song selected.
-                    </p>
-
-                )}
+                    ))}
 
             </div>
 
-            <hr />
+        )}
 
-            <button onClick={leaveRoom}>
-                Leave Room
-            </button>
+        <hr />
 
-        </div>
+        <hr />
 
-    );
+        <Player
+            currentSong={currentSong}
+            isPlaying={isPlaying}
+            onToggle={togglePlayPause}
+            currentTime={currentTime}
+            duration={duration}
+            onSeek={handleSeek}
+            onNext={handleNext}
+            onPrevious={playPreviousSong}
+            volume={volume}
+            onVolumeChange={handleVolumeChange}
+        />
+
+        <hr />
+
+        <hr />
+
+        <button onClick={leaveRoom}>
+            Leave Room
+        </button>
+
+    </div>
+
+);
 
 }
 

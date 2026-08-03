@@ -14,26 +14,24 @@ function usePlayer(songs = []) {
 
     const audioRef = useRef(new Audio());
 
-    
     const togglePlayPause = () => {
+
+        if (!currentSong) return;
 
         if (isPlaying) {
 
             audioRef.current.pause();
-
             setIsPlaying(false);
 
         } else {
 
             audioRef.current.play();
-
             setIsPlaying(true);
 
         }
 
     };
 
-    
     const handleVolumeChange = (event) => {
 
         const newVolume = Number(event.target.value);
@@ -54,60 +52,66 @@ function usePlayer(songs = []) {
 
     };
 
-    const formatTime = (time) => {
-
-        if (isNaN(time)) return "0:00";
-
-        const minutes = Math.floor(time / 60);
-
-        const seconds = Math.floor(time % 60);
-
-        return `${minutes}:${seconds
-            .toString()
-            .padStart(2, "0")}`;
-
-    };
-
-    const handleSongSelect = (selectedSong, index) => {
-
+    const handleSongSelect = async (selectedSong, index) => {
+        
+        if (!selectedSong) return;
+        
+        // Prevent selecting the same song again
+        if (currentSong?.id === selectedSong.id) {
+            return;
+        }
+    
         setCurrentSong(selectedSong);
-
+    
         setCurrentIndex(index);
-
+    
         setCurrentTime(0);
-
+    
         setDuration(0);
-
-        setIsPlaying(true);
-
-        audioRef.current.pause();
-
-        audioRef.current.src = selectedSong.file;
-
-        audioRef.current.load();
-
-        audioRef.current.play();
-
-        audioRef.current.onloadedmetadata = () => {
-
-            setDuration(audioRef.current.duration);
-
+    
+        const audio = audioRef.current;
+    
+        audio.pause();
+    
+        audio.src = selectedSong.file;
+    
+        audio.load();
+    
+        audio.volume = volume;
+    
+        audio.onloadedmetadata = () => {
+        
+            setDuration(audio.duration);
+        
         };
-
-        audioRef.current.ontimeupdate = () => {
-
-            setCurrentTime(audioRef.current.currentTime);
-
+    
+        audio.ontimeupdate = () => {
+        
+            setCurrentTime(audio.currentTime);
+        
         };
-
-        audioRef.current.onended = () => {
-
+    
+        audio.onended = () => {
+        
             playNextSong(index);
-
+        
         };
-
+    
+        try {
+        
+            await audio.play();
+        
+            setIsPlaying(true);
+        
+        }
+    
+        catch (error) {
+        
+            console.error(error);
+        
+        }
+    
     };
-
 
     const playNextSong = (index) => {
 
@@ -120,21 +124,25 @@ function usePlayer(songs = []) {
                 nextIndex
             );
 
-        } else {
+        }
 
-            setIsPlaying(false);
+        else {
+
+            audioRef.current.pause();
 
             setCurrentSong(null);
-
             setCurrentIndex(-1);
 
             setCurrentTime(0);
+
+            setDuration(0);
+
+            setIsPlaying(false);
 
         }
 
     };
 
-     
     const handleNext = () => {
 
         const nextIndex = currentIndex + 1;
@@ -150,7 +158,6 @@ function usePlayer(songs = []) {
 
     };
 
-    
     const playPreviousSong = () => {
 
         const previousIndex = currentIndex - 1;
@@ -166,42 +173,35 @@ function usePlayer(songs = []) {
 
     };
 
+    return {
 
+        currentSong,
 
+        currentIndex,
 
-return {
+        isPlaying,
 
-    currentSong,
-    setCurrentSong,
+        currentTime,
 
-    currentIndex,
-    setCurrentIndex,
+        duration,
 
-    isPlaying,
-    setIsPlaying,
+        volume,
 
-    currentTime,
-    setCurrentTime,
+        audioRef,
 
-    duration,
-    setDuration,
+        handleSongSelect,
 
-    volume,
-    setVolume,
+        togglePlayPause,
 
-    audioRef,
+        handleSeek,
 
-    togglePlayPause,
-    handleVolumeChange,
-    handleSeek,
+        handleNext,
 
-    formatTime,
-    playNextSong,
-    handleSongSelect,
+        playPreviousSong,
 
-    handleNext,
-    playPreviousSong,
-};
+        handleVolumeChange,
+
+    };
 
 }
 

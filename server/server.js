@@ -357,7 +357,7 @@ io.on("connection", (socket) => {
         room.currentTime = 0;
         room.isPlaying = false;
     
-        io.to(roomId).emit("room-song-changed", {
+        socket.to(roomId).emit("room-song-changed", {
             song,
         });
     
