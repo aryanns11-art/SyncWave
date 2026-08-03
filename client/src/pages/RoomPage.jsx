@@ -1,9 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import socket from "../socket";
+import SongCard from "../components/SongCard";
 
 function RoomPage() {
+
+    const audioRef = useRef(new Audio());
 
     const { roomId } = useParams();
 
@@ -17,6 +20,12 @@ function RoomPage() {
     const [songs, setSongs] = useState([]);
 
     const [error, setError] = useState("");
+
+    const [searchTerm, setSearchTerm] = useState("");
+    const [isPlaying, setIsPlaying] = useState(false);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [duration, setDuration] = useState(0);
+    const [volume, setVolume] = useState(1);
 
     // Fetch available songs
     const fetchSongs = async () => {
@@ -50,8 +59,6 @@ function RoomPage() {
     };
 
     useEffect(() => {
-
-        fetchSongs();
 
         // Receive current room state
         const handleRoomState = ({
@@ -120,6 +127,8 @@ function RoomPage() {
 
         // Ask server for current room state
         socket.emit("get-room-state", roomId);
+
+        fetchSongs();
 
         return () => {
 
@@ -190,19 +199,35 @@ function RoomPage() {
 
                     <h3>Host Controls</h3>
 
+                    <input
+                        type="text"
+                        placeholder="Search songs..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+
+
                     {songs.length > 0 ? (
 
-                        songs.map((song) => (
+                        songs
+                            .filter((song) =>
+                                song.title
+                                    .toLowerCase()
+                                    .includes(searchTerm.toLowerCase()) ||
 
-                            <button
-                                key={song.id}
-                                onClick={() =>
-                                    handleSongSelect(song)
-                                }
-                            >
-                                {song.title}
-                            </button>
-
+                                song.artist
+                                    .toLowerCase()
+                                    .includes(searchTerm.toLowerCase())
+                            )
+                            .map((song) => (
+                            
+                                <SongCard
+                                    key={song.id}
+                                    song={song}
+                                    onSelect={() => handleSongSelect(song)}
+                                    isCurrent={currentSong?.id === song.id}
+                                />
+                            
                         ))
 
                     ) : (
