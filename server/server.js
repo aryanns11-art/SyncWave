@@ -303,7 +303,6 @@ io.on("connection", (socket) => {
 
         }
 
-
         // If room becomes empty
         if (room.members.length === 0) {
 
@@ -317,7 +316,6 @@ io.on("connection", (socket) => {
             return;
 
         }
-
 
         // Notify remaining members
         io.to(roomId).emit("room-updated", {
@@ -361,6 +359,27 @@ io.on("connection", (socket) => {
             song,
         });
     
+    });
+
+    socket.on("toggle-play", ({ roomId, isPlaying }) => {
+
+    const room = rooms.get(roomId);
+
+        if (!room) {
+            return;
+        }
+
+        // Only host controls playback
+        if (room.host !== socket.id) {
+            return;
+        }
+
+        room.isPlaying = isPlaying;
+
+        socket.to(roomId).emit("room-toggle-play", {
+            isPlaying,
+        });
+
     });
 
 });

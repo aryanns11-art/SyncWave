@@ -24,6 +24,9 @@ function RoomPage() {
 
     const {
 
+        audioRef,
+        setIsPlaying,
+
         currentSong,
 
         handleSongSelect,
@@ -137,18 +140,41 @@ function RoomPage() {
 
         const handleRoomSongChanged = ({ song }) => {
 
-    // Host already started playback locally
-    if (isHost) return;
+            // Host already started playback locally
+            if (isHost) return;
 
-    const index = songs.findIndex(
-        (s) => s.id === song.id
-    );
+            const index = songs.findIndex(
+                    (s) => s.id === song.id
+                );
+            
+                if (index !== -1) {
+                    handleSongSelect(song, index);
+                }
+            
+        };
 
-    if (index !== -1) {
-        handleSongSelect(song, index);
-    }
+        const handleRoomTogglePlay = async ({ isPlaying }) => {
 
-};
+            if (isHost) return;
+
+            if (isPlaying) 
+            {
+                try 
+                {
+                    await audioRef.current.play();
+                    setIsPlaying(true);
+                } 
+                catch (error) 
+                {
+                    console.error(error);
+                }
+            } 
+            else {
+            
+                audioRef.current.pause();
+                setIsPlaying(false);
+            }
+        };
 
         const handleRoomError = ({ message }) => {
 
@@ -174,6 +200,8 @@ function RoomPage() {
 
         socket.on("room-closed", handleRoomClosed);
 
+        socket.on("room-toggle-play", handleRoomTogglePlay);
+
         socket.emit("get-room-state", roomId);
 
         return () => {
@@ -188,9 +216,11 @@ function RoomPage() {
 
             socket.off("room-closed", handleRoomClosed);
 
+            socket.off("room-toggle-play", handleRoomTogglePlay);   
+
         };
 
-    }, [songs, roomId, navigate, handleSongSelect, isHost]);
+    }, [ songs, roomId, navigate, handleSongSelect, isHost, audioRef, setIsPlaying,]);
 
     const selectRoomSong = (song, index) => {
 
@@ -301,7 +331,18 @@ return (
         <Player
             currentSong={currentSong}
             isPlaying={isPlaying}
-            onToggle={togglePlayPause}
+
+            onToggle={() => {
+                const nextState = !isPlaying;   
+                togglePlayPause();
+                if (isHost) {
+                    socket.emit("toggle-play", {
+                        roomId,
+                        isPlaying: nextState,
+                    });
+                }
+            }}
+
             currentTime={currentTime}
             duration={duration}
             onSeek={handleSeek}
@@ -309,7 +350,7 @@ return (
             onPrevious={playPreviousSong}
             volume={volume}
             onVolumeChange={handleVolumeChange}
-        />
+        />  
 
         <hr />
 
