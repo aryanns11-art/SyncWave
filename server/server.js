@@ -382,6 +382,45 @@ io.on("connection", (socket) => {
 
     });
 
+
+    socket.on("next-song", ({ roomId, song }) => {
+
+        const room = rooms.get(roomId);
+
+        if (!room) return;
+
+        if (room.host !== socket.id) return;
+
+        room.currentSong = song;
+        room.currentTime = 0;
+        room.isPlaying = true;
+
+        socket.to(roomId).emit("room-song-changed", {
+            song,
+        });
+
+    });
+
+
+    socket.on("previous-song", ({ roomId, song }) => {
+
+        const room = rooms.get(roomId);
+
+        if (!room) return;
+
+        if (room.host !== socket.id) return;
+
+        room.currentSong = song;
+        room.currentTime = 0;
+        room.isPlaying = true;
+
+        socket.to(roomId).emit("room-song-changed", {
+            song,
+        });
+
+    });
+
+
 });
 
 server.listen(5000, () => {

@@ -346,8 +346,44 @@ return (
             currentTime={currentTime}
             duration={duration}
             onSeek={handleSeek}
-            onNext={handleNext}
-            onPrevious={playPreviousSong}
+            
+            
+            onNext={() => {
+                        
+                if (!isHost) return;
+                        
+                const nextIndex = currentSong
+                    ? songs.findIndex(song => song.id === currentSong.id) + 1
+                    : 0;
+                        
+                if (nextIndex >= songs.length) return;
+                        
+                const nextSong = songs[nextIndex];
+                handleSongSelect(nextSong, nextIndex);     
+                socket.emit("next-song", {
+                    roomId,
+                    song: nextSong,
+                });
+            }}
+
+            onPrevious={() => {
+            
+                if (!isHost) return;
+            
+                const previousIndex = currentSong
+                    ? songs.findIndex(song => song.id === currentSong.id) - 1
+                    : -1;
+            
+                if (previousIndex < 0) return;
+            
+                const previousSong = songs[previousIndex];
+                handleSongSelect(previousSong, previousIndex);
+                socket.emit("previous-song", {
+                    roomId,
+                    song: previousSong,
+                });
+            }}
+            
             volume={volume}
             onVolumeChange={handleVolumeChange}
         />  
