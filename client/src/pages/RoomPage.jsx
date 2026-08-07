@@ -386,6 +386,7 @@ return (
             
             volume={volume}
             onVolumeChange={handleVolumeChange}
+            controlsDisabled={!isHost}
         />  
 
         <hr />

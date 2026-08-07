@@ -1,6 +1,6 @@
 import "./Player.css";
 
-function Player({ currentSong, isPlaying, onToggle, currentTime, duration , onSeek , onNext, onPrevious, volume, onVolumeChange })
+function Player({ currentSong, isPlaying, onToggle, currentTime, duration , onSeek , onNext, onPrevious, volume, onVolumeChange,controlsDisabled = false, })
 {
     const formatTime = (time) => {
 
@@ -44,13 +44,13 @@ function Player({ currentSong, isPlaying, onToggle, currentTime, duration , onSe
 
                 <div className="player-controls">
 
-                    <button onClick={onPrevious}>⏮</button>
+                    <button onClick={onPrevious} disabled={controlsDisabled}>⏮</button>
 
-                    <button onClick={onToggle}>
+                    <button onClick={onToggle} disabled={controlsDisabled}>
                         {isPlaying ? "⏸" : "▶"}
                     </button>
 
-                    <button onClick={onNext}>⏭</button>
+                    <button onClick={onNext} disabled={controlsDisabled}>⏭</button>
 
                 </div>
 
@@ -64,6 +64,7 @@ function Player({ currentSong, isPlaying, onToggle, currentTime, duration , onSe
                         max={duration}
                         value={currentTime}
                         onChange={onSeek}
+                        disabled={controlsDisabled}
                     />
 
                     <span>{formatTime(duration)}</span>
@@ -83,6 +84,7 @@ function Player({ currentSong, isPlaying, onToggle, currentTime, duration , onSe
                     step="0.01"
                     value={volume}
                     onChange={onVolumeChange}
+                    disabled={controlsDisabled}
                 />
 
                 <span>🔊</span>
