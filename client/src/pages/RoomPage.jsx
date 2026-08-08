@@ -47,6 +47,26 @@ function RoomPage() {
 
     } = usePlayer(songs);
 
+
+    const handleHostSeek = (event) => {
+
+        if (!isHost) {
+            return;
+        }
+
+        const seekTime = Number(event.target.value);
+
+        // Move host's audio
+        handleSeek(event);
+
+        // Tell all members
+        socket.emit("seek-song", {
+            roomId,
+            currentTime: seekTime,
+        });
+
+    };
+
     // Fetch songs
     const fetchSongs = async () => {
 
@@ -190,6 +210,24 @@ function RoomPage() {
 
         };
 
+        const handleRoomSeek = ({ currentTime }) => {
+        
+            if (isHost) {
+                return;
+            }
+        
+            const audio = audioRef.current;
+        
+            if (!audio) {
+                return;
+            }
+        
+            audio.currentTime = currentTime;
+        
+        };
+        
+
+
         socket.on("room-state", handleRoomState);
 
         socket.on("room-updated", handleRoomUpdated);
@@ -203,6 +241,8 @@ function RoomPage() {
         socket.on("room-toggle-play", handleRoomTogglePlay);
 
         socket.emit("get-room-state", roomId);
+        
+        socket.on("room-seek", handleRoomSeek);
 
         return () => {
 
@@ -216,7 +256,9 @@ function RoomPage() {
 
             socket.off("room-closed", handleRoomClosed);
 
-            socket.off("room-toggle-play", handleRoomTogglePlay);   
+            socket.off("room-toggle-play", handleRoomTogglePlay);
+            
+            socket.off("room-seek", handleRoomSeek);
 
         };
 
@@ -345,7 +387,7 @@ return (
 
             currentTime={currentTime}
             duration={duration}
-            onSeek={handleSeek}
+            onSeek={handleHostSeek}
             
             
             onNext={() => {

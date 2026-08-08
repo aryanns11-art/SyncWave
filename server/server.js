@@ -383,6 +383,27 @@ io.on("connection", (socket) => {
     });
 
 
+    socket.on("seek-song", ({ roomId, currentTime }) => {
+
+        const room = rooms.get(roomId);
+        
+        if (!room) {
+            return;
+        }
+    
+        if (room.host !== socket.id) {
+            return;
+        }
+    
+        room.currentTime = currentTime;
+    
+        socket.to(roomId).emit("room-seek", {
+            currentTime,
+        });
+    
+    });
+
+
     socket.on("next-song", ({ roomId, song }) => {
 
         const room = rooms.get(roomId);
